@@ -91,6 +91,16 @@ export function MotionRoot({ children }: { children: React.ReactNode }) {
           })
         }
 
+        /* 4c. Project screenshots open from the bottom edge as they scroll in */
+        const shots = q(".cv-shot")
+        if (shots.length) {
+          gsap.set(shots, { clipPath: "inset(100% 0% 0% 0% round 14px)" })
+          ScrollTrigger.batch(shots, {
+            start: "top 88%", once: true,
+            onEnter: (batch) => gsap.to(batch, { clipPath: "inset(0% 0% 0% 0% round 14px)", duration: 1.2, ease: "expo.out", stagger: 0.12, overwrite: true }),
+          })
+        }
+
         /* 5. Case facts count up once */
         q(".cv-case-facts dd").forEach((dd) => {
           const end = Number(dd.textContent)
@@ -151,16 +161,6 @@ export function MotionRoot({ children }: { children: React.ReactNode }) {
               })
             })
           }
-        }
-
-        /* 5c. Archive cells fade up in small groups as they scroll in */
-        const cells = q(".ph-cell")
-        if (cells.length) {
-          gsap.set(cells, { autoAlpha: 0, y: 48 })
-          ScrollTrigger.batch(cells, {
-            start: "top 92%", once: true,
-            onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.08, overwrite: true }),
-          })
         }
 
         /* 6. Contact heading rises word by word */

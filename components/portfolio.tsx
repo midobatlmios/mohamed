@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowDown, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react"
 import { ShippedIndex, type ShippedGroup } from "@/components/shipped-index"
 import { MotionRoot } from "@/components/motion-root"
+import { HoverPreview } from "@/components/hover-preview"
 import { PhotoGallery } from "@/components/photo-gallery"
 import { getPhotos } from "@/lib/photos"
 
@@ -88,8 +89,9 @@ const getSiteGroups = (): ShippedGroup[] => [
   },
 ]
 
-const internship = [
-  { name: "Oumnitrade", stack: "React / TypeScript · Laravel · Inertia.js", text: "Leave-management application replacing a manual process: employee requests and approvals are now handled online." },
+const internship: { name: string; stack: string; text: string; img?: { src: string; w: number; h: number; alt: string }; repo?: string }[] = [
+  { name: "Oumnitrade", stack: "React / TypeScript · Laravel · Inertia.js", text: "Leave-management application replacing a manual process: employee requests and approvals are now handled online.",
+    img: { src: "/projects/oumnitrade.webp", w: 1917, h: 915, alt: "Oumnitrade leave platform welcome screen by Xerus Media" }, repo: "https://github.com/midobatlmios/conge_4" },
   { name: "Sunlux Maroc", stack: "WordPress · Elementor", text: "Built a veterinary platform, integrating specialist business plugins." },
 ]
 
@@ -99,12 +101,16 @@ const projects = [
     text: "Full-stack web app covering catalogue, loans, reservations, memberships, payments and administration.",
     backend: "Java 17 · Spring Boot · Spring Security (JWT, Google OAuth) · JPA / Hibernate · MySQL · JUnit",
     frontend: "React 19 · Redux Toolkit · React Router · Material UI · Tailwind CSS · Vite",
+    img: { src: "/projects/library.png", w: 1916, h: 912, alt: "Library Al Azhar catalogue home with search and genre filters" },
+    repo: "https://github.com/midobatlmios/library-management-system",
   },
   {
     name: "Intelligent Task Manager",
     text: "Full-stack web app with a Kanban board, filterable task list, analytics dashboard and AI-generated priority suggestions.",
     backend: "Java 17 · Spring Boot · Spring Security (JWT) · JPA / Hibernate · MySQL · Kimi AI API (Moonshot) · Swagger · JUnit / Mockito · Docker",
     frontend: "Angular 21 · Angular Material · Angular CDK (drag & drop) · Chart.js · RxJS · SSR",
+    img: { src: "/projects/task-manager.png", w: 1917, h: 908, alt: "Smart Task Manager sign-in screen" },
+    repo: "https://github.com/midobatlmios/smart-task-manager",
   },
 ]
 
@@ -216,7 +222,7 @@ export function Portfolio() {
         {cases.map((c) => {
           const main = shot(c.slug)
           const second = shot(`${c.slug}-2`)
-          return <article className="cv-case" key={c.slug}>
+          const body = <>
             {main && <div className={second ? "cv-case-media cv-case-media-two" : "cv-case-media"}>
               <Image src={main} alt={`${c.name} website`} width={1917} height={913} sizes="(max-width: 900px) 100vw, 1120px" />
               {second && <Image src={second} alt={`${c.name}, inner page`} width={1917} height={913} sizes="(max-width: 900px) 100vw, 560px" />}
@@ -235,7 +241,10 @@ export function Portfolio() {
                 {c.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
               </dl>
             </div>
-          </article>
+          </>
+          return main
+            ? <HoverPreview as="article" className="cv-case hp-row" key={c.slug} img={{ src: main, w: 1917, h: 913, alt: `${c.name} website` }}>{body}</HoverPreview>
+            : <article className="cv-case" key={c.slug}>{body}</article>
         })}
       </section>
 
@@ -251,26 +260,37 @@ export function Portfolio() {
         <div className="cv-role-block">
           <div className="cv-role-head"><h4>Full-Stack Developer Intern</h4><span className="cv-date">Apr – May 2025</span></div>
           <ul className="cv-list">
-            {internship.map((i) => <li key={i.name}><strong>{i.name}</strong> {i.text} <span className="cv-mono">{i.stack}</span></li>)}
+            {internship.map((i) => {
+              const body = <>
+                <strong>{i.name}</strong> {i.text} <span className="cv-mono">{i.stack}</span>
+                {i.repo && <Ext className="cv-repo" href={i.repo}>Code on GitHub</Ext>}
+                {i.img && <figure className="cv-shot"><Image src={i.img.src} alt={i.img.alt} width={i.img.w} height={i.img.h} sizes="100vw" /></figure>}
+              </>
+              return i.img
+                ? <HoverPreview as="li" key={i.name} img={i.img} className="hp-row">{body}</HoverPreview>
+                : <li key={i.name}>{body}</li>
+            })}
           </ul>
         </div>
       </Section>
 
       <Section id="projects" title="Personal projects">
         <div className="cv-features">
-          {projects.map((p) => <article className="cv-feature" key={p.name}>
+          {projects.map((p) => <HoverPreview as="article" className="cv-feature hp-row" key={p.name} img={p.img}>
             <div className="cv-feature-head">
               <h5>{p.name}</h5>
               <p className="cv-small">Full-stack application</p>
+              <Ext className="cv-repo" href={p.repo}>Code on GitHub</Ext>
             </div>
             <div className="cv-feature-body">
+              <figure className="cv-shot"><Image src={p.img.src} alt={p.img.alt} width={p.img.w} height={p.img.h} sizes="100vw" /></figure>
               <p>{p.text}</p>
               <dl className="cv-stack-dl">
                 <div><dt>Backend</dt><dd>{p.backend}</dd></div>
                 <div><dt>Frontend</dt><dd>{p.frontend}</dd></div>
               </dl>
             </div>
-          </article>)}
+          </HoverPreview>)}
         </div>
       </Section>
 

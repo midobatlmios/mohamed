@@ -4,20 +4,18 @@ import Image from "next/image"
 import { ArrowLeft, ArrowRight, X } from "lucide-react"
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useGSAP } from "@gsap/react"
 import type { Photo } from "@/lib/photos"
 
 gsap.registerPlugin(useGSAP)
 
 const SELECTED = 12
-const PREVIEW = 3 // archive photos shown before "Show all"
 const pad = (n: number) => String(n).padStart(2, "0")
 
 /**
  * The darkroom. A "Selected" strip of the first 12 photos (native swipe; pinned, scrubbed
- * sideways with inner parallax by MotionRoot on wide screens), then a collapsible "Archive"
- * masonry. Any photo zooms from where it sits into a full-screen viewer that walks them all.
+ * sideways with inner parallax by MotionRoot on wide screens). Any photo zooms from where it
+ * sits into a full-screen viewer that walks every photo in the folder, not only the strip.
  */
 export function PhotoGallery({ photos, head }: { photos: Photo[]; head?: React.ReactNode }) {
   const root = useRef<HTMLDivElement>(null)
@@ -25,11 +23,7 @@ export function PhotoGallery({ photos, head }: { photos: Photo[]; head?: React.R
   const cursor = useRef<HTMLDivElement>(null)
   const flipFrom = useRef<DOMRect | null>(null)
   const [index, setIndex] = useState<number | null>(null)
-  const [expanded, setExpanded] = useState(false)
   const selected = photos.slice(0, SELECTED)
-  const archive = photos.slice(SELECTED)
-  const collapsible = archive.length > PREVIEW
-  const shown = collapsible && !expanded ? archive.slice(0, PREVIEW) : archive
 
   const open = (i: number, from: HTMLElement) => {
     flipFrom.current = from.querySelector("img")?.getBoundingClientRect() ?? null
@@ -91,23 +85,12 @@ export function PhotoGallery({ photos, head }: { photos: Photo[]; head?: React.R
     root.current?.classList.add("has-cursor")
     const onMove = (e: PointerEvent) => {
       xTo(e.clientX); yTo(e.clientY)
-      const over = (e.target as Element | null)?.closest?.(".ph-open, .ph-cell")
+      const over = (e.target as Element | null)?.closest?.(".ph-open")
       disc.classList.toggle("is-on", !!over)
     }
     window.addEventListener("pointermove", onMove, { passive: true })
     return () => window.removeEventListener("pointermove", onMove)
   }, { scope: root })
-
-  // The archive grows when expanded, which moves every trigger below it
-  useEffect(() => {
-    if (!expanded) return
-    ScrollTrigger.refresh()
-    // The newly shown photos rise in one after another
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const fresh = root.current?.querySelectorAll(".ph-cell")
-    if (fresh) gsap.fromTo(Array.from(fresh).slice(PREVIEW), { autoAlpha: 0, y: 48 },
-      { autoAlpha: 1, y: 0, duration: 1, ease: "expo.out", stagger: 0.06 })
-  }, [expanded])
 
   const label = (p: Photo, i: number) => `Open photo ${i + 1} of ${photos.length}: ${p.alt}`
   const current = index === null ? null : photos[index]
@@ -134,25 +117,6 @@ export function PhotoGallery({ photos, head }: { photos: Photo[]; head?: React.R
         <span className="ph-hint">Scroll</span>
       </div>
     </div>
-
-    {archive.length > 0 && <div className="cv-wrap ph-archive">
-      <div className="ph-archive-head">
-        <h3>Archive</h3>
-        <span className="cv-mono">{archive.length} more</span>
-      </div>
-      <div id="ph-archive-grid" className={collapsible && !expanded ? "ph-grid is-preview" : "ph-grid"}>
-        {shown.map((p, j) => {
-          const i = j + SELECTED
-          return <button type="button" key={p.src} className="ph-cell" onClick={(e) => open(i, e.currentTarget)} aria-label={label(p, i)}
->
-            <Image src={p.src} alt={p.alt} width={p.width} height={p.height} sizes="(max-width: 640px) 50vw, 360px" loading="lazy" />
-          </button>
-        })}
-      </div>
-      {collapsible && !expanded && <button type="button" className="cv-btn ph-more" onClick={() => setExpanded(true)} aria-controls="ph-archive-grid" aria-expanded={false}>
-        Show all {archive.length} photos
-      </button>}
-    </div>}
 
     <div ref={cursor} className="ph-cursor" aria-hidden><span>View</span></div>
 

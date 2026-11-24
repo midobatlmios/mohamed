@@ -17,22 +17,10 @@ export const metadata: Metadata = {
     locale: 'en_US',
   },
   keywords: ['Mohamed Bouamlat', 'Full-Stack Developer', 'Next.js', 'React', 'Laravel', 'Casablanca'], 
+  // Tab icon: the eight-point star (public/icon.svg). The iOS home-screen icon comes from app/apple-icon.tsx.
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
   },
 }
 
