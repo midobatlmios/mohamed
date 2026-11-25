@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import Image from "next/image"
-import { ArrowDown, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react"
+import { ArrowDown, ArrowUpRight, FileText, Mail, MapPin, Phone } from "lucide-react"
 import { ShippedIndex, type ShippedGroup } from "@/components/shipped-index"
 import { MotionRoot } from "@/components/motion-root"
 import { HoverPreview } from "@/components/hover-preview"
@@ -114,7 +114,8 @@ const projects = [
   },
 ]
 
-const education = [
+type Doc = { src: string; w: number; h: number; alt: string }
+const education: { date: string; title: string; place: string; text: string; diploma?: Doc }[] = [
   {
     date: "2025 – 2026",
     title: "Licence Pro, Full Stack Web Development & DevOps",
@@ -126,6 +127,8 @@ const education = [
     title: "Specialised Technician in Digital Development",
     place: "ISGI, Centre Philips",
     text: "HTML/CSS, JavaScript, OOP, static and dynamic websites, SQL, frameworks (React, Laravel), Agile methods, cloud.",
+    // Personal identifiers (date of birth, CNI, matricule, serial, barcode) are covered in this copy
+    diploma: { src: "/documents/diplome-technicien-specialise-ofppt.webp", w: 1600, h: 1200, alt: "OFPPT Diplôme de Technicien Spécialisé, Développement Digital option Web Full Stack, June 2025, with personal identifiers hidden" },
   },
 ]
 
@@ -213,7 +216,7 @@ export function Portfolio() {
       <section className="cv-wrap cv-work" id="work" aria-labelledby="work-title">
         <div className="cv-work-head">
           <h2 id="work-title" className="cv-display">Shipped,</h2>
-          <p>12+ client sites delivered or maintained at Xerus Media since October 2025: 4 Next.js, 4 Shopify, 4 WordPress.</p>
+          <p>12+ client sites delivered or maintained at Xerus Group between November 2025 and November 2026: 4 Next.js, 4 Shopify, 4 WordPress.</p>
         </div>
         <ShippedIndex groups={getSiteGroups()} />
       </section>
@@ -250,12 +253,22 @@ export function Portfolio() {
 
       <Section id="experience" title="Experience">
         <div className="cv-company">
-          <h3>Xerus Media <span>Casablanca</span></h3>
-          <span className="cv-date">Apr 2025 – Present</span>
+          <h3>Xerus Group <span>Casablanca</span></h3>
+          <span className="cv-date">Apr 2025 – Nov 2026</span>
         </div>
         <div className="cv-role-block">
-          <div className="cv-role-head"><h4>Web Developer</h4><span className="cv-date">Oct 2025 – Present</span></div>
+          <div className="cv-role-head"><h4>Web Developer</h4><span className="cv-date">Nov 2025 – Nov 2026</span></div>
           <p className="cv-lead">12+ client sites across Next.js, Shopify and WordPress, plus the Gigalab redesign and the AFG Asset Management admin. <a className="cv-inline" href="#work">See the work</a></p>
+          <figure className="cv-reco">
+            <blockquote lang="fr">« Je retiens de lui sa fiabilité et son honnêteté dans le compte rendu. »</blockquote>
+            <p className="cv-reco-en">“What I remember most is his reliability and his honesty in reporting.”</p>
+            <figcaption>
+              <span><b>El Andaloussi Ben Brahim Othman</b>Co-manager, Xerus Group</span>
+              <a className="cv-reco-doc" href="/documents/xerus-group-lettre-de-recommandation.pdf" target="_blank" rel="noreferrer">
+                <FileText size={18} aria-hidden /> Read the recommendation letter <small>PDF · French</small>
+              </a>
+            </figcaption>
+          </figure>
         </div>
         <div className="cv-role-block">
           <div className="cv-role-head"><h4>Full-Stack Developer Intern</h4><span className="cv-date">Apr – May 2025</span></div>
@@ -302,11 +315,22 @@ export function Portfolio() {
       </Section>
 
       <Section id="education" title="Education">
-        {education.map((e) => <div className="cv-edu" key={e.title}>
-          <div className="cv-role-head"><h4>{e.title}</h4><span className="cv-date">{e.date}</span></div>
-          <p className="cv-place">{e.place}</p>
-          <p className="cv-edu-text">{e.text}</p>
-        </div>)}
+        {education.map((e) => {
+          const body = <>
+            <div className="cv-role-head"><h4>{e.title}</h4><span className="cv-date">{e.date}</span></div>
+            <p className="cv-place">{e.place}</p>
+            <p className="cv-edu-text">{e.text}</p>
+            {e.diploma && <>
+              <a className="cv-reco-doc cv-edu-doc" href={e.diploma.src} target="_blank" rel="noreferrer">
+                <FileText size={18} aria-hidden /> View diploma <small>OFPPT · June 2025</small>
+              </a>
+              <figure className="cv-shot cv-shot-doc"><Image src={e.diploma.src} alt={e.diploma.alt} width={e.diploma.w} height={e.diploma.h} sizes="100vw" /></figure>
+            </>}
+          </>
+          return e.diploma
+            ? <HoverPreview key={e.title} className="cv-edu hp-row" img={e.diploma}>{body}</HoverPreview>
+            : <div className="cv-edu" key={e.title}>{body}</div>
+        })}
       </Section>
 
       <Section id="interests" title="Interests">
